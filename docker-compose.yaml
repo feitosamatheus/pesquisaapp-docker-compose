@@ -15,7 +15,7 @@ services:
       - rabbitmq-network
     mem_limit: 1g
     volumes:
-      - /srv/rabbitmq:/var/lib/rabbitmq 
+      - rabbitmq_data:/var/lib/rabbitmq # volume persistente para dados do RabbitMQ
 
   pesquisaapp-api-gateway:
     # build:
@@ -164,6 +164,10 @@ services:
     networks:
         - rabbitmq-network
     mem_limit: 1g
+
+volumes:
+  rabbitmq_data: 
+    driver: local
 
 networks:
         rabbitmq-network:
