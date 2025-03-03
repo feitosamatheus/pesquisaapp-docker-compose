@@ -1,0 +1,170 @@
+﻿version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_DEFAULT_USER: "admin"
+      RABBITMQ_DEFAULT_PASS: "PQA_DTM@2025"
+    networks:
+      - rabbitmq-network
+    mem_limit: 1g
+    volumes:
+      - /srv/rabbitmq:/var/lib/rabbitmq 
+
+  pesquisaapp-api-gateway:
+    # build:
+    #   context: "C:/Users/PC/Source/Repos/PesquisaApp.ApiGateway"
+    #   dockerfile: Dockerfile
+    image: feitosamatheus21/api-gateway-pesquisa:v1
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=PQA_DTM@2025
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8989:8080"
+    networks:
+      - rabbitmq-network
+    mem_limit: 1g
+
+  pesquisaapp-register-questionnaire-database:
+    # build:
+    #     context: "C:/Users/PC/source/repos/PesquisaApp.Microservice.RegisterQuestionnaireExternal"
+    #     dockerfile: Dockerfile
+    image: feitosamatheus21/service-questionnaire-register:v1
+    environment:
+        - RABBITMQ_HOST=rabbitmq
+        - RABBITMQ_PORT=5672
+        - RABBITMQ_EXCHANGE_NAME=questionnaire-register
+        - RABBITMQ_QUEUE_NAME=process-questionnaire
+        - RABBITMQ_QUEUE_NAME_NOTIFICATION=sync-database
+        - RABBITMQ_MAX_RETRY=3
+        - RABBITMQ_DEFAULT_USER=admin
+        - RABBITMQ_DEFAULT_PASS=PQA_DTM@2025
+    depends_on:
+         - rabbitmq
+    command: >
+      dockerize -wait tcp://rabbitmq:5672 -timeout 30s 
+      dotnet Microservice.RegisterQuestionnaireExternal.dll
+    networks:
+        - rabbitmq-network
+    mem_limit: 1g
+
+  pesquisaapp-process-schudeling:
+    # build:
+    #     context: "C:/Users/PC/source/repos/intelectah-desafio-concessionaria/Microservice.ProcessScheduling"
+    #     dockerfile: Dockerfile
+    image: feitosamatheus21/service-process-scheduling:v1
+    environment:
+        - RABBITMQ_HOST=rabbitmq
+        - RABBITMQ_PORT=5672
+        - RABBITMQ_EXCHANGE_NAME=questionnaire-register
+        - RABBITMQ_QUEUE_NAME=process-scheduling-questionnaire
+        - RABBITMQ_QUEUE_NAME_NOTIFICATION=sync-database
+        - RABBITMQ_MAX_RETRY=3
+        - RABBITMQ_DEFAULT_USER=admin
+        - RABBITMQ_DEFAULT_PASS=PQA_DTM@2025
+    depends_on:
+         - rabbitmq
+    command: >
+      dockerize -wait tcp://rabbitmq:5672 -timeout 30s 
+      dotnet Microservice.ProcessScheduling.dll
+    networks:
+        - rabbitmq-network
+    mem_limit: 1g
+
+  pesquisaapp-sync-database:
+    # build:
+    #     context: "C:/Users/PC/source/repos/intelectah-desafio-concessionaria/Microservice.SyncDatabase"
+    #     dockerfile: Dockerfile
+    image: feitosamatheus21/service-sync-database:v1
+    environment:
+        - RABBITMQ_HOST=rabbitmq
+        - RABBITMQ_PORT=5672
+        - RABBITMQ_QUEUE_NAME=sync-database
+        - RABBITMQ_MAX_RETRY=3
+        - RABBITMQ_DEFAULT_USER=admin
+        - RABBITMQ_DEFAULT_PASS=PQA_DTM@2025
+    depends_on:
+        - rabbitmq
+    command: >
+      dockerize -wait tcp://rabbitmq:5672 -timeout 30s 
+      dotnet Microservice.SyncDatabase.dll
+    networks:
+        - rabbitmq-network
+    mem_limit: 1g
+
+  pesquisaapp-protocol-updater:
+    # build:
+    #   context: "C:/Users/PC/Source/repos/PesquisaApp.Microservice.UpdateProtocolStatus"
+    #   dockerfile: Dockerfile
+    image: feitosamatheus21/service-questionnaire-updater:v1
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_QUEUE_NAME=protocol-update-status
+      - RABBITMQ_MAX_RETRY=3
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=PQA_DTM@2025
+    depends_on:
+       - rabbitmq
+    command: >
+      dockerize -wait tcp://rabbitmq:5672 -timeout 30s 
+      dotnet Microservice.UpdateProtocolStatus.dll
+    networks:
+      - rabbitmq-network
+    mem_limit: 1g
+
+  pesquisaapp-process-protocol:
+    # build:
+    #   context: "C:/Users/PC/Source/repos/intelectah-desafio-concessionaria/Microservice.ProcessProtocol"
+    #   dockerfile: Dockerfile
+    image: feitosamatheus21/service-process-protocol:v1
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_QUEUE_NAME=process-protocol
+      - RABBITMQ_MAX_RETRY=3
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=PQA_DTM@2025
+    depends_on:
+      - rabbitmq
+    command: >
+      dockerize -wait tcp://rabbitmq:5672 -timeout 30s 
+      dotnet Microservice.ProcessProtocol.dll
+    networks:
+      - rabbitmq-network
+    mem_limit: 1g
+
+  pesquisaapp-process-dial:
+    # build:
+    #     context: "C:/Users/PC/Source/Repos/intelectah-desafio-concessionaria/Microservice.ProcessDial"
+    #     dockerfile: Dockerfile
+    image: feitosamatheus21/process-dial:v1
+    environment:
+        - RABBITMQ_HOST=rabbitmq
+        - RABBITMQ_PORT=5672
+        - RABBITMQ_QUEUE_NAME=process-dial
+        - RABBITMQ_MAX_RETRY=3
+        - RABBITMQ_DEFAULT_USER=admin
+        - RABBITMQ_DEFAULT_PASS=PQA_DTM@2025
+    depends_on:
+         - rabbitmq
+    command: >
+      dockerize -wait tcp://rabbitmq:5672 -timeout 30s 
+      dotnet Microservice.ProcessDial.dll
+    networks:
+        - rabbitmq-network
+    mem_limit: 1g
+
+networks:
+        rabbitmq-network:
+            driver: bridge
