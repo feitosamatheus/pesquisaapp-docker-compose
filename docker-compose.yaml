@@ -15,9 +15,24 @@ services:
       - rabbitmq-network
     mem_limit: 1g
     volumes:
-      - rabbitmq_data:/var/lib/rabbitmq # volume persistente para dados do RabbitMQ
+      - rabbitmq_data:/var/lib/rabbitmq 
 
-  pesquisaapp-api-gateway:
+  pesquisaApp-web:
+    image: feitosamatheus21/app-pesquisa-aspnet:latest
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=PQA_DTM@2025
+    depends_on:
+      - rabbitmq
+    ports:
+      - "127.0.0.1:8181:8080"
+    networks:
+      - rabbitmq-network
+    mem_limit: 2g
+
+  api-gateway:
     # build:
     #   context: "C:/Users/PC/Source/Repos/PesquisaApp.ApiGateway"
     #   dockerfile: Dockerfile
@@ -35,7 +50,7 @@ services:
       - rabbitmq-network
     mem_limit: 1g
 
-  pesquisaapp-register-questionnaire-database:
+  service-register-questionnaire:
     # build:
     #     context: "C:/Users/PC/source/repos/PesquisaApp.Microservice.RegisterQuestionnaireExternal"
     #     dockerfile: Dockerfile
@@ -58,7 +73,7 @@ services:
         - rabbitmq-network
     mem_limit: 1g
 
-  pesquisaapp-process-schudeling:
+  service-process-schudeling:
     # build:
     #     context: "C:/Users/PC/source/repos/intelectah-desafio-concessionaria/Microservice.ProcessScheduling"
     #     dockerfile: Dockerfile
@@ -81,7 +96,7 @@ services:
         - rabbitmq-network
     mem_limit: 1g
 
-  pesquisaapp-sync-database:
+  service-sync-database:
     # build:
     #     context: "C:/Users/PC/source/repos/intelectah-desafio-concessionaria/Microservice.SyncDatabase"
     #     dockerfile: Dockerfile
@@ -102,7 +117,7 @@ services:
         - rabbitmq-network
     mem_limit: 1g
 
-  pesquisaapp-protocol-updater:
+  service-protocol-updater:
     # build:
     #   context: "C:/Users/PC/Source/repos/PesquisaApp.Microservice.UpdateProtocolStatus"
     #   dockerfile: Dockerfile
@@ -123,7 +138,7 @@ services:
       - rabbitmq-network
     mem_limit: 1g
 
-  pesquisaapp-process-protocol:
+  service-process-protocol:
     # build:
     #   context: "C:/Users/PC/Source/repos/intelectah-desafio-concessionaria/Microservice.ProcessProtocol"
     #   dockerfile: Dockerfile
@@ -144,7 +159,7 @@ services:
       - rabbitmq-network
     mem_limit: 1g
 
-  pesquisaapp-process-dial:
+  service-process-dial:
     # build:
     #     context: "C:/Users/PC/Source/Repos/intelectah-desafio-concessionaria/Microservice.ProcessDial"
     #     dockerfile: Dockerfile
