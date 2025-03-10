@@ -180,7 +180,7 @@ services:
         - rabbitmq-network
     mem_limit: 1g
   
-  service-process-dial:
+  service-process-proposal:
     image: feitosamatheus21/service-process-proposal:latest
     environment:
         - RABBITMQ_HOST=rabbitmq
