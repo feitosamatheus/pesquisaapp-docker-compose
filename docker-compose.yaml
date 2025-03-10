@@ -4,8 +4,8 @@ services:
   rabbitmq:
     image: rabbitmq:management
     ports:
-      - "127.0.0.1:15672:15672"
-      - "127.0.0.1:5672:5672"
+      - "15672:15672"
+      - "5672:5672"
     environment:
       RABBITMQ_HOST: "rabbitmq"
       RABBITMQ_PORT: "5672"
@@ -176,6 +176,24 @@ services:
     command: >
       dockerize -wait tcp://rabbitmq:5672 -timeout 30s 
       dotnet Microservice.ProcessDial.dll
+    networks:
+        - rabbitmq-network
+    mem_limit: 1g
+  
+  service-process-dial:
+    image: feitosamatheus21/service-process-proposal:latest
+    environment:
+        - RABBITMQ_HOST=rabbitmq
+        - RABBITMQ_PORT=5672
+        - RABBITMQ_QUEUE_NAME=process-proposal
+        - RABBITMQ_MAX_RETRY=3
+        - RABBITMQ_DEFAULT_USER=admin
+        - RABBITMQ_DEFAULT_PASS=PQA_DTM@2025
+    depends_on:
+         - rabbitmq
+    command: >
+      dockerize -wait tcp://rabbitmq:5672 -timeout 30s 
+      dotnet Microservice.ProcessProposal.dll
     networks:
         - rabbitmq-network
     mem_limit: 1g
