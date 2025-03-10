@@ -54,7 +54,7 @@ services:
     # build:
     #     context: "C:/Users/PC/source/repos/PesquisaApp.Microservice.RegisterQuestionnaireExternal"
     #     dockerfile: Dockerfile
-    image: feitosamatheus21/service-questionnaire-register:v1
+    image: feitosamatheus21/service-questionnaire-register:latest
     environment:
         - RABBITMQ_HOST=rabbitmq
         - RABBITMQ_PORT=5672
@@ -77,7 +77,7 @@ services:
     # build:
     #     context: "C:/Users/PC/source/repos/intelectah-desafio-concessionaria/Microservice.ProcessScheduling"
     #     dockerfile: Dockerfile
-    image: feitosamatheus21/service-process-scheduling:v1
+    image: feitosamatheus21/service-process-scheduling:latest
     environment:
         - RABBITMQ_HOST=rabbitmq
         - RABBITMQ_PORT=5672
