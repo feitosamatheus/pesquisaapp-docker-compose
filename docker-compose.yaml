@@ -36,7 +36,7 @@ services:
     # build:
     #   context: "C:/Users/PC/Source/Repos/PesquisaApp.ApiGateway"
     #   dockerfile: Dockerfile
-    image: feitosamatheus21/api-gateway-pesquisa:v1
+    image: feitosamatheus21/api-gateway-pesquisa:latest
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
@@ -121,7 +121,7 @@ services:
     # build:
     #   context: "C:/Users/PC/Source/repos/PesquisaApp.Microservice.UpdateProtocolStatus"
     #   dockerfile: Dockerfile
-    image: feitosamatheus21/service-questionnaire-updater:v1
+    image: feitosamatheus21/service-questionnaire-updater:latest
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
@@ -142,7 +142,7 @@ services:
     # build:
     #   context: "C:/Users/PC/Source/repos/intelectah-desafio-concessionaria/Microservice.ProcessProtocol"
     #   dockerfile: Dockerfile
-    image: feitosamatheus21/service-process-protocol:v1
+    image: feitosamatheus21/service-process-protocol:latest
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
